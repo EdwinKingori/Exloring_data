@@ -73,3 +73,24 @@ hotel_summary <-
             min_lead_time = min(lead_time),
             max_lead_time = max(lead_time))
 View(hotel_summary)
+
+#Plotting to test different hypothesis.
+#1st Objective: targeting the group of people who book early.
+# A) Testing the hypothesis that people with children have to book in advance
+
+ggplot(data = bookings_df) +
+  geom_point(mapping = aes(x= lead_time, y = children))
+
+#On the x-axis, the plot shows how far in advance a booking is made, 
+  #with the bookings furthest to the right happening the most in advance. 
+  #On the y-axis it shows how many children there are in a party.
+#The plot reveals that the hypothesis is incorrect. 
+  #Instead, many of the advanced bookings are being made by people with 0 children.
+
+#2nd Objective: Increasing the weekend bookings, which is a significant source of revenue.
+# B) Testing the hypothesis that guests without children book the most weekend nights
+
+ggplot(data = bookings_df) + 
+  geom_point(mapping = aes(x = stays_in_weekend_nights, y = children))
+
+# The plot reveals that the hypothesis is correct.  
