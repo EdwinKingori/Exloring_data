@@ -79,7 +79,8 @@ View(hotel_summary)
 # A) Testing the hypothesis that people with children have to book in advance
 
 ggplot(data = bookings_df) +
-  geom_point(mapping = aes(x= lead_time, y = children))
+  geom_point(mapping = aes(x= lead_time, y = children))+
+  labs(title = 'Early_Bookings_Hypothesis_Test: x= lead_time, y = children ')
 
 #On the x-axis, the plot shows how far in advance a booking is made, 
   #with the bookings furthest to the right happening the most in advance. 
@@ -91,6 +92,78 @@ ggplot(data = bookings_df) +
 # B) Testing the hypothesis that guests without children book the most weekend nights
 
 ggplot(data = bookings_df) + 
-  geom_point(mapping = aes(x = stays_in_weekend_nights, y = children))
+  geom_point(mapping = aes(x = stays_in_weekend_nights, y = children))+
+  labs(title = "Weekend_Nights_Bookings_hypothesis: x = stays_in_weekend_nights, y = children ")
 
 # The plot reveals that the hypothesis is correct.  
+
+#Bars/facets
+# The stakeholder is interested in developing promotions based on different booking distributions, 
+# but first they need to know how many of the transactions are occurring for each different distribution type.
+# Checking what distribution type has the most number of bookings using a bar_chart
+ggplot(data = bookings_df) + 
+  geom_bar(mapping = aes(x = distribution_channel, fill= market_segment))+
+  labs(title = 'Number of bookings')
+
+#Facets
+# Creating separate charts for each deposit type and market segment to help them understand the differences more clearly
+# 1) market segment
+ggplot(data = bookings_df)+
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~market_segment)+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'market_segment_facet')
+# 2) deposit type
+ggplot(data = bookings_df)+
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~deposit_type)+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'deposit_type_facet')
+# Exploring the differences by deposit type and market segment in one chart
+ggplot(data = bookings_df)+
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~deposit_type~market_segment)+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'differences by deposit type and market segment')
+
+#Filtering
+
+# After considering all the data, the stakeholder decides to send the promotion to families that make online bookings for city hotels.
+#The online segment is the fastest growing segment, and families tend to spend more at city hotels than other types of guests. 
+#The stakeholder asks to create a plot that shows the relationship between lead time and guests traveling with children for online bookings at city hotels. 
+#This will give her a better idea of the specific timing for the promotion. 
+#Steps involved
+# 1) filtering the data; 2) plotting the filtered data. 
+
+online_city_hotels <- filter(bookings_df, (hotel == "City Hotel" &
+                                             bookings_df $ market_segment == "Online TA" ))
+#or
+online_city_hotels_2 <- bookings_df %>%
+  filter(hotel == "City Hotel")%>%
+  filter(market_segment=="Online TA")
+View(online_city_hotels)
+View(online_city_hotels_2)
+
+# 2) plotting the filtered data. 
+
+ggplot(data = online_city_hotels_2) +
+  geom_point(mapping = aes(x= lead_time, y = children))+
+  labs(title= "Online bookings for city hotels")
+
+# Based on the filter, the scatterplot shows data for online bookings for city hotels.
+# The plot reveals that bookings with children tend to have a shorter lead time,
+#and bookings with 3 children have a significantly shorter lead time (<200 days). 
+# So, promotions targeting families can be made closer to the valid booking dates.
+
+mindate <- min(bookings_df$arrival_date_year)
+maxdate <- max(bookings_df$arrival_date_year)
+# Comparison of market segments by hotel type for hotel bookings
+ggplot(data = bookings_df) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title="Comparison of market segments by hotel type for hotel bookings",
+       caption=paste0("Data from: ", mindate, " to ", maxdate),
+       x="Market Segment",
+       y="Number of Bookings")
+ggsave('hotel_booking_chart.png')
